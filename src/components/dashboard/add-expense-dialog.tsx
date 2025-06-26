@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Category, Expense } from '@/lib/types';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -29,10 +29,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '../ui/calendar';
+import { categorizeExpense } from '@/ai/flows/categorize-expense';
 
 const expenseSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
@@ -55,15 +56,55 @@ export function AddExpenseDialog({
   onAddExpense,
 }: AddExpenseDialogProps) {
   const [open, setOpen] = React.useState(false);
+  const [isCategorizing, setIsCategorizing] = React.useState(false);
   const {
     register,
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
   });
+
+  const descriptionValue = useWatch({
+    control,
+    name: 'description',
+    defaultValue: '',
+  });
+
+  React.useEffect(() => {
+    if (!descriptionValue || descriptionValue.trim().length < 4) {
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      const suggestCategory = async () => {
+        setIsCategorizing(true);
+        try {
+          const categoryNames = categories.map((c) => c.name);
+          const result = await categorizeExpense({
+            description: descriptionValue,
+            categories: categoryNames,
+          });
+          if (result && result.category && categoryNames.includes(result.category)) {
+            setValue('category', result.category, { shouldValidate: true });
+          }
+        } catch (e) {
+          console.error('Failed to get AI category suggestion.', e);
+        } finally {
+          setIsCategorizing(false);
+        }
+      };
+      suggestCategory();
+    }, 800);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [descriptionValue, categories, setValue]);
+
 
   const onSubmit = (data: ExpenseFormValues) => {
     onAddExpense({
@@ -109,12 +150,16 @@ export function AddExpenseDialog({
               <Label htmlFor="description" className="text-right">
                 Description
               </Label>
-              <div className="col-span-3">
+              <div className="col-span-3 relative">
                 <Input
                   id="description"
-                  className="w-full"
+                  className="w-full pr-8"
                   {...register('description')}
+                  autoComplete="off"
                 />
+                {isCategorizing && (
+                  <Sparkles className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-pulse text-primary" />
+                )}
                 {errors.description && (
                   <p className="pt-1 text-xs text-destructive">
                     {errors.description.message}
@@ -131,7 +176,7 @@ export function AddExpenseDialog({
                   name="category"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
