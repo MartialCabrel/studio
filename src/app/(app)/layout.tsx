@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="min-h-screen">
+      <div className="flex min-h-screen">
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
