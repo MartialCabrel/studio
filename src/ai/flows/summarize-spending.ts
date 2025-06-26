@@ -15,6 +15,7 @@ const SummarizeSpendingInputSchema = z.object({
     })
   ).describe('A list of expenses to summarize.'),
   period: z.string().describe('The period for which to summarize spending, e.g., daily, weekly, or monthly.'),
+  currency: z.string().describe('The currency of the expenses, e.g., USD, EUR.'),
 });
 export type SummarizeSpendingInput = z.infer<typeof SummarizeSpendingInputSchema>;
 
@@ -38,7 +39,7 @@ const summarizeSpendingPrompt = ai.definePrompt({
   name: 'summarizeSpendingPrompt',
   input: {schema: SummarizeSpendingInputSchema},
   output: {schema: SummarizeSpendingOutputSchema},
-  prompt: `Analyze the following expenses for the selected period and provide a concise summary of the total expenditure, top categories, and overall spending patterns.
+  prompt: `Analyze the following expenses for the selected period and provide a concise summary of the total expenditure, top categories, and overall spending patterns. The amounts are in {{{currency}}}. Make sure to mention the currency in your summary.
 
 Period: {{{period}}}
 
@@ -72,7 +73,7 @@ const summarizeSpendingFlow = ai.defineFlow(
 
     const topCategories = Object.entries(categoryTotals)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
+      .slice(0, 5) // Get top 5 categories for the chart
       .map(([category, amount]) => ({category, amount}));
 
     const {output} = await summarizeSpendingPrompt({
@@ -82,7 +83,7 @@ const summarizeSpendingFlow = ai.defineFlow(
     return {
       totalExpenditure,
       topCategories,
-      summary: output.summary,
+      summary: output!.summary,
     };
   }
 );

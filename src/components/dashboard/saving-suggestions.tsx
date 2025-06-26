@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface SavingSuggestionsProps {
   expenses: Expense[];
@@ -27,6 +28,7 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preferences, setPreferences] = useState<CostSavingSuggestionsInput['userPreferences'] | undefined>(undefined);
+  const { currency } = useCurrency();
     
   useEffect(() => {
     const savedPrefs = localStorage.getItem('aiPreferences');
@@ -43,7 +45,7 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await costSavingSuggestions({ expenses, userPreferences: preferences });
+      const result = await costSavingSuggestions({ expenses, userPreferences: preferences, currency });
       setSuggestions(result);
     } catch (e) {
       setError('Failed to generate suggestions. Please try again.');

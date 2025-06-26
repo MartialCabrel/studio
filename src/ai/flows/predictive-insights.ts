@@ -19,6 +19,7 @@ const PredictiveInsightsInputSchema = z.object({
       description: z.string().describe('A brief description of the expense.'),
     })
   ).describe('An array of historical expense objects.'),
+  currency: z.string().describe('The currency of the expenses, e.g., USD, EUR.'),
 });
 
 export type PredictiveInsightsInput = z.infer<typeof PredictiveInsightsInputSchema>;
@@ -44,7 +45,7 @@ const predictiveInsightsPrompt = ai.definePrompt({
   name: 'predictiveInsightsPrompt',
   input: {schema: PredictiveInsightsInputSchema},
   output: {schema: PredictiveInsightsOutputSchema},
-  prompt: `You are a financial analyst AI. Based on the user's past spending habits, predict their expenses for the next month.
+  prompt: `You are a financial analyst AI. Based on the user's past spending habits, predict their expenses for the next month. The currency for all amounts is {{{currency}}}. Mention the currency in your predictions and summary.
 
 Historical Expenses:
 {{#each expenses}}

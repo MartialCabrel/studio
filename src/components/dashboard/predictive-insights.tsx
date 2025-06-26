@@ -26,13 +26,13 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
     useState<PredictiveInsightsOutput | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { formatCurrency } = useCurrency();
+    const { currency, formatCurrency } = useCurrency();
 
     const handleGeneratePrediction = async () => {
     setIsLoading(true);
     setError(null);
     try {
-        const result = await predictiveInsights({ expenses });
+        const result = await predictiveInsights({ expenses, currency });
         setPrediction(result);
     } catch (e) {
         setError('Failed to generate predictions. Please try again.');
@@ -43,7 +43,7 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
     };
 
     return (
-    <div className="space-y-2">
+    <div className="space-y-4">
         <div>
         <h3 className="font-semibold">Predictive Insights</h3>
         <p className="text-sm text-muted-foreground">
@@ -70,7 +70,7 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
         )}
 
         {prediction && (
-        <div className="space-y-2">
+        <div className="space-y-4">
             <Alert>
             <AlertTitle>Prediction Summary</AlertTitle>
             <AlertDescription>{prediction.summary}</AlertDescription>

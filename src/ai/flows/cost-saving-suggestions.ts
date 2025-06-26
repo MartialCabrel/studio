@@ -27,6 +27,7 @@ const CostSavingSuggestionsInputSchema = z.object({
     reportFrequency: z.enum(['daily', 'weekly', 'monthly']).optional().describe('The user-selected report frequency.'),
     adviceType: z.string().optional().describe('The type of cost saving advice the user wants to receive.'),
   }).optional().describe('User preferences for cost saving suggestions.'),
+  currency: z.string().describe('The currency of the expenses, e.g., USD, EUR.'),
 });
 
 export type CostSavingSuggestionsInput = z.infer<typeof CostSavingSuggestionsInputSchema>;
@@ -51,7 +52,7 @@ const costSavingSuggestionsPrompt = ai.definePrompt({
   name: 'costSavingSuggestionsPrompt',
   input: {schema: CostSavingSuggestionsInputSchema},
   output: {schema: CostSavingSuggestionsOutputSchema},
-  prompt: `You are a personal finance advisor. Analyze the user's expenses and identify potential cost-saving opportunities.
+  prompt: `You are a personal finance advisor. Analyze the user's expenses and identify potential cost-saving opportunities. The currency for all amounts is {{{currency}}}. Mention the currency when talking about specific amounts in your suggestions.
 
 Expenses:
 {{#each expenses}}
