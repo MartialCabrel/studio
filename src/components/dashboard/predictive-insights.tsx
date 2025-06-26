@@ -15,6 +15,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface PredictiveInsightsProps {
     expenses: Expense[];
@@ -25,6 +26,7 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
     useState<PredictiveInsightsOutput | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { formatCurrency } = useCurrency();
 
     const handleGeneratePrediction = async () => {
     setIsLoading(true);
@@ -40,15 +42,8 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
     }
     };
 
-    const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(amount);
-    };
-
     return (
-    <div className="space-y-4">
+    <div className="space-y-2">
         <div>
         <h3 className="font-semibold">Predictive Insights</h3>
         <p className="text-sm text-muted-foreground">
@@ -75,7 +70,7 @@ export function PredictiveInsights({ expenses }: PredictiveInsightsProps) {
         )}
 
         {prediction && (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <Alert>
             <AlertTitle>Prediction Summary</AlertTitle>
             <AlertDescription>{prediction.summary}</AlertDescription>

@@ -1,3 +1,5 @@
+'use client';
+
 import type { Category, Expense } from '@/lib/types';
 import {
   Table,
@@ -10,11 +12,9 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Icon } from '../icon';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface ExpenseTableProps {
   expenses: Expense[];
@@ -23,13 +23,7 @@ interface ExpenseTableProps {
 
 export function ExpenseTable({ expenses, categories }: ExpenseTableProps) {
   const categoryMap = new Map(categories.map((cat) => [cat.name, cat]));
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const { formatCurrency } = useCurrency();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

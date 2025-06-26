@@ -20,6 +20,10 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     // This is a mock login. In a real app, you would handle authentication here.
+    // We'll set a default currency if none is set, for demo purposes.
+    if (!localStorage.getItem('userCurrency')) {
+      localStorage.setItem('userCurrency', 'USD');
+    }
     router.push('/dashboard');
   };
 

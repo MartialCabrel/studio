@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Terminal } from 'lucide-react';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface SpendingSummaryProps {
   expenses: Expense[];
@@ -19,6 +20,7 @@ export function SpendingSummary({ expenses }: SpendingSummaryProps) {
   const [summary, setSummary] = useState<SummarizeSpendingOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { formatCurrency } = useCurrency();
 
   const handleGenerateSummary = async () => {
     setIsLoading(true);
@@ -34,15 +36,8 @@ export function SpendingSummary({ expenses }: SpendingSummaryProps) {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <h3 className="font-semibold">Spending Summary</h3>
         <p className="text-sm text-muted-foreground">
@@ -71,7 +66,7 @@ export function SpendingSummary({ expenses }: SpendingSummaryProps) {
       )}
 
       {summary && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <Alert>
             <Terminal className="h-4 w-4" />
             <AlertTitle>AI Summary</AlertTitle>
