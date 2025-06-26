@@ -43,7 +43,7 @@ export function DashboardClient({
 
   return (
     <>
-      <div className="flex flex-col-reverse items-start gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col-reverse items-start gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">
             Dashboard
@@ -62,8 +62,8 @@ export function DashboardClient({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold">Your Expenses</h2>
             <Select onValueChange={setCategoryFilter} defaultValue="all">
@@ -83,7 +83,7 @@ export function DashboardClient({
           <ExpenseTable expenses={filteredExpenses} categories={categories} />
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <h2 className="text-xl font-semibold">AI Insights</h2>
           <AIInsights expenses={expenses} />
         </div>

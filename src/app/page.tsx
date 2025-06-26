@@ -21,7 +21,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="container mx-auto grid grid-cols-1 items-center gap-8 px-4 py-12 md:grid-cols-2 md:px-6 lg:py-24">
+        <section className="container mx-auto grid grid-cols-1 items-center gap-6 px-4 py-8 md:grid-cols-2 md:px-6 lg:py-16">
           <div className="space-y-6">
             <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
               Gain Control of Your Finances with Insightful Expenses
@@ -47,7 +47,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-muted py-12 lg:py-24">
+        <section className="bg-muted py-8 lg:py-16">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
               <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-4xl">
@@ -58,7 +58,7 @@ export default function Home() {
                 financial health.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

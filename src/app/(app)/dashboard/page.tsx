@@ -7,7 +7,7 @@ export default function DashboardPage() {
   const fetchedCategories = categories;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <DashboardClient
         expenses={fetchedExpenses}
         categories={fetchedCategories}

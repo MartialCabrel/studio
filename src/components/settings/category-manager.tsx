@@ -83,7 +83,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
           {categories.map((category) => (
             <li
               key={category.id}
-              className="flex items-center justify-between rounded-md border p-3"
+              className="flex items-center justify-between rounded-md border p-2"
             >
               <div className="flex items-center gap-3">
                 <Icon name={category.icon} className="h-5 w-5" />
