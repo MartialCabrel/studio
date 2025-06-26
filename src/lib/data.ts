@@ -1,4 +1,4 @@
-import type { Category, Expense, Goal } from '@/lib/types';
+import type { Category, Expense, Goal, Asset, Liability } from '@/lib/types';
 
 export const categories: Category[] = [
   { id: 'cat-1', name: 'Groceries', icon: 'ShoppingCart' },
@@ -97,4 +97,16 @@ export const goals: Goal[] = [
   { id: 'goal-1', name: 'Vacation to Hawaii', targetAmount: 5000, currentAmount: 1250 },
   { id: 'goal-2', name: 'New Laptop', targetAmount: 2000, currentAmount: 1800 },
   { id: 'goal-3', name: 'Emergency Fund', targetAmount: 10000, currentAmount: 4000 },
+];
+
+export const assets: Asset[] = [
+  { id: 'asset-1', name: 'Savings Account', value: 15000, type: 'Other' },
+  { id: 'asset-2', name: 'Stock Portfolio', value: 25000, type: 'Investment' },
+  { id: 'asset-3', name: 'Primary Residence', value: 350000, type: 'Property' },
+];
+
+export const liabilities: Liability[] = [
+  { id: 'lia-1', name: 'Mortgage', balance: 250000, type: 'Mortgage' },
+  { id: 'lia-2', name: 'Car Loan', balance: 12000, type: 'Loan' },
+  { id: 'lia-3', name: 'Credit Card Debt', balance: 3500, type: 'Credit Card' },
 ];

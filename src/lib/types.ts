@@ -19,3 +19,17 @@ export type Goal = {
   currentAmount: number;
   targetDate?: string;
 };
+
+export type Asset = {
+  id: string;
+  name: string;
+  value: number;
+  type: 'Investment' | 'Property' | 'Vehicle' | 'Other';
+};
+
+export type Liability = {
+  id: string;
+  name: string;
+  balance: number;
+  type: 'Loan' | 'Mortgage' | 'Credit Card' | 'Other';
+};
