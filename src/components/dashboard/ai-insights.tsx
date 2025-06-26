@@ -14,9 +14,10 @@ import { Card } from '../ui/card';
 
 interface AIInsightsProps {
   expenses: Expense[];
+  currency: string;
 }
 
-export function AIInsights({ expenses }: AIInsightsProps) {
+export function AIInsights({ expenses, currency }: AIInsightsProps) {
   return (
     <Card>
       <Tabs defaultValue="summary" className="w-full">
@@ -25,14 +26,14 @@ export function AIInsights({ expenses }: AIInsightsProps) {
           <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
           <TabsTrigger value="predictions">Predictions</TabsTrigger>
         </TabsList>
-        <TabsContent value="summary" className="p-4">
-          <SpendingSummary expenses={expenses} />
+        <TabsContent value="summary" className="p-2">
+          <SpendingSummary expenses={expenses} currency={currency} />
         </TabsContent>
-        <TabsContent value="suggestions" className="p-4">
-          <SavingSuggestions expenses={expenses} />
+        <TabsContent value="suggestions" className="p-2">
+          <SavingSuggestions expenses={expenses} currency={currency} />
         </TabsContent>
-        <TabsContent value="predictions" className="p-4">
-          <PredictiveInsights expenses={expenses} />
+        <TabsContent value="predictions" className="p-2">
+          <PredictiveInsights expenses={expenses} currency={currency} />
         </TabsContent>
       </Tabs>
     </Card>

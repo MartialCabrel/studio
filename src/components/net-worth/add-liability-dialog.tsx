@@ -13,11 +13,18 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Liability } from '@/lib/types';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { addLiability } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const liabilitySchema = z.object({
   name: z.string().min(1, 'Liability name is required'),
@@ -29,26 +36,38 @@ type LiabilityFormValues = z.infer<typeof liabilitySchema>;
 
 interface AddLiabilityDialogProps {
   children: React.ReactNode;
-  onAddLiability: (liability: Omit<Liability, 'id'>) => void;
 }
 
-export function AddLiabilityDialog({ children, onAddLiability }: AddLiabilityDialogProps) {
+export function AddLiabilityDialog({ children }: AddLiabilityDialogProps) {
   const [open, setOpen] = React.useState(false);
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LiabilityFormValues>({
     resolver: zodResolver(liabilitySchema),
-    defaultValues: { type: 'Other' }
+    defaultValues: { type: 'Other' },
   });
 
-  const onSubmit = (data: LiabilityFormValues) => {
-    onAddLiability(data);
-    reset();
-    setOpen(false);
+  const onSubmit = async (data: LiabilityFormValues) => {
+    try {
+      await addLiability(data);
+      toast({
+        title: 'Liability Added',
+        description: 'Your liability has been successfully saved.',
+      });
+      reset();
+      setOpen(false);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add liability. Please try again.',
+      });
+    }
   };
 
   return (
@@ -64,28 +83,49 @@ export function AddLiabilityDialog({ children, onAddLiability }: AddLiabilityDia
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
               <div className="col-span-3">
                 <Input id="name" {...register('name')} />
-                {errors.name && <p className="pt-1 text-xs text-destructive">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="pt-1 text-xs text-destructive">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="balance" className="text-right">Balance</Label>
+              <Label htmlFor="balance" className="text-right">
+                Balance
+              </Label>
               <div className="col-span-3">
-                <Input id="balance" type="number" step="0.01" {...register('balance')} />
-                {errors.balance && <p className="pt-1 text-xs text-destructive">{errors.balance.message}</p>}
+                <Input
+                  id="balance"
+                  type="number"
+                  step="0.01"
+                  {...register('balance')}
+                />
+                {errors.balance && (
+                  <p className="pt-1 text-xs text-destructive">
+                    {errors.balance.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="type" className="text-right">Type</Label>
+              <Label htmlFor="type" className="text-right">
+                Type
+              </Label>
               <div className="col-span-3">
                 <Controller
                   name="type"
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a type" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Loan">Loan</SelectItem>
                         <SelectItem value="Mortgage">Mortgage</SelectItem>
@@ -95,12 +135,18 @@ export function AddLiabilityDialog({ children, onAddLiability }: AddLiabilityDia
                     </Select>
                   )}
                 />
-                {errors.type && <p className="pt-1 text-xs text-destructive">{errors.type.message}</p>}
+                {errors.type && (
+                  <p className="pt-1 text-xs text-destructive">
+                    {errors.type.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save Liability</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Liability'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

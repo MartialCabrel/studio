@@ -10,13 +10,11 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
-import { cn } from '@/lib/utils';
-import { UserNav } from './user-nav';
+import type { User } from '@supabase/supabase-js';
 
-export function AppSidebar() {
+export function AppSidebar({ user }: { user: User | null }) {
   const pathname = usePathname();
 
   const menuItems = [

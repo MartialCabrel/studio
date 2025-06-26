@@ -18,21 +18,15 @@ import {
 interface DashboardClientProps {
   expenses: Expense[];
   categories: Category[];
+  currency: string;
 }
 
 export function DashboardClient({
-  expenses: initialExpenses,
+  expenses,
   categories,
+  currency,
 }: DashboardClientProps) {
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-
-  const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => {
-    setExpenses((prev) => [
-      { ...newExpense, id: `exp-${Date.now()}` },
-      ...prev,
-    ]);
-  };
 
   const filteredExpenses = useMemo(() => {
     if (categoryFilter === 'all') {
@@ -45,15 +39,13 @@ export function DashboardClient({
     <>
       <div className="flex flex-col-reverse items-start gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Dashboard
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
             Here&apos;s an overview of your recent expenses.
           </p>
         </div>
         <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-start">
-          <AddExpenseDialog categories={categories} onAddExpense={handleAddExpense}>
+          <AddExpenseDialog categories={categories}>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Expense
@@ -80,12 +72,16 @@ export function DashboardClient({
               </SelectContent>
             </Select>
           </div>
-          <ExpenseTable expenses={filteredExpenses} categories={categories} />
+          <ExpenseTable
+            expenses={filteredExpenses}
+            categories={categories}
+            currency={currency}
+          />
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">AI Insights</h2>
-          <AIInsights expenses={expenses} />
+          <AIInsights expenses={expenses} currency={currency} />
         </div>
       </div>
     </>

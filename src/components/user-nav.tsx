@@ -1,5 +1,3 @@
-'use client';
-
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,14 +10,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import { logout } from '@/lib/actions';
 
-export function UserNav() {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    // In a real app, you'd handle logout logic here.
-    router.push('/login');
+export function UserNav({ user }: { user: User }) {
+  const getInitials = (email: string) => {
+    return email ? email.charAt(0).toUpperCase() : 'U';
   };
 
   return (
@@ -27,16 +23,18 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>{getInitials(user.email!)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">User</p>
+            <p className="text-sm font-medium leading-none">
+              {user.user_metadata.name || 'User'}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -47,7 +45,13 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+        <form action={logout}>
+          <DropdownMenuItem asChild>
+            <button type="submit" className="w-full text-left">
+              Log out
+            </button>
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   );

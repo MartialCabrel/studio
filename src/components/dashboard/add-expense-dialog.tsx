@@ -34,6 +34,8 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar } from '../ui/calendar';
 import { categorizeExpense } from '@/ai/flows/categorize-expense';
+import { addExpense } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const expenseSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
@@ -47,23 +49,22 @@ type ExpenseFormValues = z.infer<typeof expenseSchema>;
 interface AddExpenseDialogProps {
   children: React.ReactNode;
   categories: Category[];
-  onAddExpense: (expense: Omit<Expense, 'id'>) => void;
 }
 
 export function AddExpenseDialog({
   children,
   categories,
-  onAddExpense,
 }: AddExpenseDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [isCategorizing, setIsCategorizing] = React.useState(false);
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
     control,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
   });
@@ -88,7 +89,11 @@ export function AddExpenseDialog({
             description: descriptionValue,
             categories: categoryNames,
           });
-          if (result && result.category && categoryNames.includes(result.category)) {
+          if (
+            result &&
+            result.category &&
+            categoryNames.includes(result.category)
+          ) {
             setValue('category', result.category, { shouldValidate: true });
           }
         } catch (e) {
@@ -105,14 +110,22 @@ export function AddExpenseDialog({
     };
   }, [descriptionValue, categories, setValue]);
 
-
-  const onSubmit = (data: ExpenseFormValues) => {
-    onAddExpense({
-      ...data,
-      date: data.date.toISOString(),
-    });
-    reset();
-    setOpen(false);
+  const onSubmit = async (data: ExpenseFormValues) => {
+    try {
+      await addExpense(data);
+      toast({
+        title: 'Expense Added',
+        description: 'Your expense has been successfully saved.',
+      });
+      reset();
+      setOpen(false);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add expense. Please try again.',
+      });
+    }
   };
 
   return (
@@ -176,7 +189,10 @@ export function AddExpenseDialog({
                   name="category"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
@@ -190,7 +206,7 @@ export function AddExpenseDialog({
                     </Select>
                   )}
                 />
-                 {errors.category && (
+                {errors.category && (
                   <p className="pt-1 text-xs text-destructive">
                     {errors.category.message}
                   </p>
@@ -202,7 +218,7 @@ export function AddExpenseDialog({
                 Date
               </Label>
               <div className="col-span-3">
-                 <Controller
+                <Controller
                   name="date"
                   control={control}
                   render={({ field }) => (
@@ -243,7 +259,9 @@ export function AddExpenseDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save Expense</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Expense'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

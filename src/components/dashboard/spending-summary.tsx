@@ -1,7 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import {
   summarizeSpending,
   type SummarizeSpendingOutput,
@@ -20,6 +27,7 @@ import {
 
 interface SpendingSummaryProps {
   expenses: Expense[];
+  currency: string;
 }
 
 const chartConfig = {
@@ -29,11 +37,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function SpendingSummary({ expenses }: SpendingSummaryProps) {
+export function SpendingSummary({ expenses, currency }: SpendingSummaryProps) {
   const [summary, setSummary] = useState<SummarizeSpendingOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { currency, formatCurrency } = useCurrency();
+  const { formatCurrency } = useCurrency(currency);
 
   const handleGenerateSummary = async () => {
     setIsLoading(true);
@@ -54,7 +62,7 @@ export function SpendingSummary({ expenses }: SpendingSummaryProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <h3 className="font-semibold">Spending Summary</h3>
         <p className="text-sm text-muted-foreground">
@@ -81,7 +89,7 @@ export function SpendingSummary({ expenses }: SpendingSummaryProps) {
       )}
 
       {summary && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <Alert>
             <Terminal className="h-4 w-4" />
             <AlertTitle>AI Summary</AlertTitle>

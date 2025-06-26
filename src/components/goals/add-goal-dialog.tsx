@@ -13,41 +13,53 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Goal } from '@/lib/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { addGoal } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const goalSchema = z.object({
   name: z.string().min(1, 'Goal name is required'),
-  targetAmount: z.coerce.number().min(1, 'Target amount must be greater than 0'),
+  targetAmount: z.coerce
+    .number()
+    .min(1, 'Target amount must be greater than 0'),
 });
 
 type GoalFormValues = z.infer<typeof goalSchema>;
 
 interface AddGoalDialogProps {
   children: React.ReactNode;
-  onAddGoal: (goal: Omit<Goal, 'id' | 'currentAmount'>) => void;
 }
 
-export function AddGoalDialog({
-  children,
-  onAddGoal,
-}: AddGoalDialogProps) {
+export function AddGoalDialog({ children }: AddGoalDialogProps) {
   const [open, setOpen] = React.useState(false);
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(goalSchema),
   });
 
-  const onSubmit = (data: GoalFormValues) => {
-    onAddGoal(data);
-    reset();
-    setOpen(false);
+  const onSubmit = async (data: GoalFormValues) => {
+    try {
+      await addGoal(data);
+      toast({
+        title: 'Goal Added',
+        description: 'Your new goal has been saved.',
+      });
+      reset();
+      setOpen(false);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save goal. Please try again.',
+      });
+    }
   };
 
   return (
@@ -67,11 +79,7 @@ export function AddGoalDialog({
                 Name
               </Label>
               <div className="col-span-3">
-                <Input
-                  id="name"
-                  className="w-full"
-                  {...register('name')}
-                />
+                <Input id="name" className="w-full" {...register('name')} />
                 {errors.name && (
                   <p className="pt-1 text-xs text-destructive">
                     {errors.name.message}
@@ -100,7 +108,9 @@ export function AddGoalDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save Goal</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Goal'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

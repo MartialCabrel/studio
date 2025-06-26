@@ -1,7 +1,6 @@
 'use client';
 
 import type { Goal } from '@/lib/types';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { GoalCard } from './goal-card';
@@ -9,18 +8,10 @@ import { AddGoalDialog } from './add-goal-dialog';
 
 interface GoalsClientProps {
   initialGoals: Goal[];
+  currency: string;
 }
 
-export function GoalsClient({ initialGoals }: GoalsClientProps) {
-  const [goals, setGoals] = useState<Goal[]>(initialGoals);
-
-  const handleAddGoal = (newGoal: Omit<Goal, 'id' | 'currentAmount'>) => {
-    setGoals((prev) => [
-      { ...newGoal, id: `goal-${Date.now()}`, currentAmount: 0 },
-      ...prev,
-    ]);
-  };
-
+export function GoalsClient({ initialGoals, currency }: GoalsClientProps) {
   return (
     <>
       <div className="flex flex-col-reverse items-start gap-2 md:flex-row md:items-center md:justify-between">
@@ -33,23 +24,24 @@ export function GoalsClient({ initialGoals }: GoalsClientProps) {
           </p>
         </div>
         <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-start">
-            <AddGoalDialog onAddGoal={handleAddGoal}>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Goal
-                </Button>
-            </AddGoalDialog>
+          <AddGoalDialog>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Goal
+            </Button>
+          </AddGoalDialog>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+        {initialGoals.map((goal) => (
+          <GoalCard key={goal.id} goal={goal} currency={currency} />
         ))}
-        {goals.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground">
-                You haven't set any goals yet.
-            </div>
+        {initialGoals.length === 0 && (
+          <div className="col-span-full py-12 text-center text-muted-foreground">
+            You haven&apos;t set any goals yet. Click &quot;Add Goal&quot; to
+            start.
+          </div>
         )}
       </div>
     </>

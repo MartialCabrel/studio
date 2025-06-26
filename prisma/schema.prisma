@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id              String      @id @default(uuid())
+  email           String      @unique
+  currency        String      @default("USD")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  categories      Category[]
+  expenses        Expense[]
+  goals           Goal[]
+  assets          Asset[]
+  liabilities     Liability[]
+  netWorthHistory NetWorthHistory[]
+
+  @@map("users")
+}
+
+model Category {
+  id      String   @id @default(cuid())
+  name    String
+  icon    String
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Expense Expense[]
+
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  date        DateTime
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("expenses")
+}
+
+model Goal {
+  id            String   @id @default(cuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float    @default(0)
+  targetDate    DateTime?
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("goals")
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  name      String
+  value     Float
+  type      String // 'Investment', 'Property', 'Vehicle', 'Other'
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("assets")
+}
+
+model Liability {
+  id        String   @id @default(cuid())
+  name      String
+  balance   Float
+  type      String // 'Loan', 'Mortgage', 'Credit Card', 'Other'
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("liabilities")
+}
+
+model NetWorthHistory {
+  id        String   @id @default(cuid())
+  date      DateTime
+  netWorth  Float
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("net_worth_history")
+}

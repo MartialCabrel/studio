@@ -9,23 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '../icon';
 import { useCurrency } from '@/hooks/use-currency';
 
 interface ExpenseTableProps {
   expenses: Expense[];
   categories: Category[];
+  currency: string;
 }
 
-export function ExpenseTable({ expenses, categories }: ExpenseTableProps) {
+export function ExpenseTable({
+  expenses,
+  categories,
+  currency,
+}: ExpenseTableProps) {
   const categoryMap = new Map(categories.map((cat) => [cat.name, cat]));
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency } = useCurrency(currency);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

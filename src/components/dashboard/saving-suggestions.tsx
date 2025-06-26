@@ -16,28 +16,32 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { useCurrency } from '@/hooks/use-currency';
 
 interface SavingSuggestionsProps {
   expenses: Expense[];
+  currency: string;
 }
 
-export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
+export function SavingSuggestions({
+  expenses,
+  currency,
+}: SavingSuggestionsProps) {
   const [suggestions, setSuggestions] =
     useState<CostSavingSuggestionsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [preferences, setPreferences] = useState<CostSavingSuggestionsInput['userPreferences'] | undefined>(undefined);
-  const { currency } = useCurrency();
-    
+  const [preferences, setPreferences] = useState<
+    CostSavingSuggestionsInput['userPreferences'] | undefined
+  >(undefined);
+
   useEffect(() => {
     const savedPrefs = localStorage.getItem('aiPreferences');
     if (savedPrefs) {
-        try {
-            setPreferences(JSON.parse(savedPrefs));
-        } catch (e) {
-            console.error("Failed to parse AI preferences from localStorage", e);
-        }
+      try {
+        setPreferences(JSON.parse(savedPrefs));
+      } catch (e) {
+        console.error('Failed to parse AI preferences from localStorage', e);
+      }
     }
   }, []);
 
@@ -45,7 +49,11 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await costSavingSuggestions({ expenses, userPreferences: preferences, currency });
+      const result = await costSavingSuggestions({
+        expenses,
+        userPreferences: preferences,
+        currency,
+      });
       setSuggestions(result);
     } catch (e) {
       setError('Failed to generate suggestions. Please try again.');
@@ -56,7 +64,7 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div>
         <h3 className="font-semibold">Saving Suggestions</h3>
         <p className="text-sm text-muted-foreground">
@@ -85,7 +93,7 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
       )}
 
       {suggestions && (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {suggestions.suggestions.length > 0 ? (
             <Accordion type="single" collapsible className="w-full">
               {suggestions.suggestions.map((item, index) => (

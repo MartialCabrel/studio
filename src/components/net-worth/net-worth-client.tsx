@@ -1,13 +1,19 @@
 'use client';
 
 import type { Asset, Liability } from '@/lib/types';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { useCurrency } from '@/hooks/use-currency';
 import { AddAssetDialog } from './add-asset-dialog';
 import { AddLiabilityDialog } from './add-liability-dialog';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -20,23 +26,24 @@ import {
 interface NetWorthClientProps {
   initialAssets: Asset[];
   initialLiabilities: Liability[];
+  currency: string;
 }
 
-export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthClientProps) {
-  const [assets, setAssets] = useState<Asset[]>(initialAssets);
-  const [liabilities, setLiabilities] = useState<Liability[]>(initialLiabilities);
-  const { formatCurrency } = useCurrency();
+export function NetWorthClient({
+  initialAssets,
+  initialLiabilities,
+  currency,
+}: NetWorthClientProps) {
+  const { formatCurrency } = useCurrency(currency);
 
-  const handleAddAsset = (newAsset: Omit<Asset, 'id'>) => {
-    setAssets((prev) => [...prev, { ...newAsset, id: `asset-${Date.now()}` }]);
-  };
-
-  const handleAddLiability = (newLiability: Omit<Liability, 'id'>) => {
-    setLiabilities((prev) => [...prev, { ...newLiability, id: `lia-${Date.now()}` }]);
-  };
-
-  const totalAssets = useMemo(() => assets.reduce((sum, asset) => sum + asset.value, 0), [assets]);
-  const totalLiabilities = useMemo(() => liabilities.reduce((sum, lia) => sum + lia.balance, 0), [liabilities]);
+  const totalAssets = useMemo(
+    () => initialAssets.reduce((sum, asset) => sum + asset.value, 0),
+    [initialAssets]
+  );
+  const totalLiabilities = useMemo(
+    () => initialLiabilities.reduce((sum, lia) => sum + lia.balance, 0),
+    [initialLiabilities]
+  );
   const netWorth = totalAssets - totalLiabilities;
 
   return (
@@ -46,15 +53,15 @@ export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthCl
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Assets</CardTitle>
-              <AddAssetDialog onAddAsset={handleAddAsset}>
-                 <Button size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Asset
+              <AddAssetDialog>
+                <Button size="sm">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Asset
                 </Button>
               </AddAssetDialog>
             </CardHeader>
             <CardContent className="p-0">
-               <Table>
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
@@ -63,17 +70,26 @@ export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthCl
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {assets.map(asset => (
+                  {initialAssets.map((asset) => (
                     <TableRow key={asset.id}>
                       <TableCell>{asset.name}</TableCell>
                       <TableCell>{asset.type}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(asset.value)}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(asset.value)}
+                      </TableCell>
                     </TableRow>
                   ))}
+                  {initialAssets.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        No assets added yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
-             <CardFooter className="font-bold">
+            <CardFooter className="font-bold">
               <div className="flex w-full justify-between">
                 <span>Total Assets</span>
                 <span>{formatCurrency(totalAssets)}</span>
@@ -83,10 +99,10 @@ export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthCl
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Liabilities</CardTitle>
-              <AddLiabilityDialog onAddLiability={handleAddLiability}>
+              <AddLiabilityDialog>
                 <Button size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Liability
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Liability
                 </Button>
               </AddLiabilityDialog>
             </CardHeader>
@@ -100,13 +116,22 @@ export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthCl
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {liabilities.map(lia => (
+                  {initialLiabilities.map((lia) => (
                     <TableRow key={lia.id}>
                       <TableCell>{lia.name}</TableCell>
                       <TableCell>{lia.type}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(lia.balance)}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(lia.balance)}
+                      </TableCell>
                     </TableRow>
                   ))}
+                  {initialLiabilities.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        No liabilities added yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -119,15 +144,17 @@ export function NetWorthClient({ initialAssets, initialLiabilities }: NetWorthCl
           </Card>
         </div>
       </div>
-       <Card className="flex flex-col">
+      <Card className="flex flex-col">
         <CardHeader>
           <CardTitle>Net Worth Summary</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-grow flex-col justify-center space-y-4 text-center">
-            <p className="text-sm text-muted-foreground">Total Assets - Total Liabilities</p>
-            <p className="text-4xl font-bold tracking-tight text-primary">
-                {formatCurrency(netWorth)}
-            </p>
+          <p className="text-sm text-muted-foreground">
+            Total Assets - Total Liabilities
+          </p>
+          <p className="text-4xl font-bold tracking-tight text-primary">
+            {formatCurrency(netWorth)}
+          </p>
         </CardContent>
       </Card>
     </div>

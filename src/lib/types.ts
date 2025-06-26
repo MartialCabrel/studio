@@ -1,40 +1,22 @@
-export type Expense = {
-  id: string;
-  amount: number;
+import type {
+  Expense as PrismaExpense,
+  Category as PrismaCategory,
+  Goal as PrismaGoal,
+  Asset as PrismaAsset,
+  Liability as PrismaLiability,
+  NetWorthHistory as PrismaNetWorthHistory,
+} from '@prisma/client';
+
+export type Expense = Omit<PrismaExpense, 'categoryId'> & {
   category: string;
-  date: string;
-  description: string;
 };
 
-export type Category = {
-  id:string;
-  name: string;
-  icon: string; // Lucide icon name
-};
+export type Category = PrismaCategory;
 
-export type Goal = {
-  id: string;
-  name: string;
-  targetAmount: number;
-  currentAmount: number;
-  targetDate?: string;
-};
+export type Goal = PrismaGoal;
 
-export type Asset = {
-  id: string;
-  name: string;
-  value: number;
-  type: 'Investment' | 'Property' | 'Vehicle' | 'Other';
-};
+export type Asset = PrismaAsset;
 
-export type Liability = {
-  id: string;
-  name: string;
-  balance: number;
-  type: 'Loan' | 'Mortgage' | 'Credit Card' | 'Other';
-};
+export type Liability = PrismaLiability;
 
-export type NetWorthHistory = {
-  date: string;
-  netWorth: number;
-};
+export type NetWorthHistory = PrismaNetWorthHistory;
