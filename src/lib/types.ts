@@ -33,3 +33,8 @@ export type Liability = {
   balance: number;
   type: 'Loan' | 'Mortgage' | 'Credit Card' | 'Other';
 };
+
+export type NetWorthHistory = {
+  date: string;
+  netWorth: number;
+};

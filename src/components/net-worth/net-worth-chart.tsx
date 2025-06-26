@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList, Cell } from "recharts"
 
 import {
   Card,
@@ -95,13 +95,16 @@ export function NetWorthChart({ assets, liabilities }: NetWorthChartProps) {
                     layout="vertical"
                     radius={4}
                 >
+                    {chartData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                    ))}
                     <LabelList
-                        dataKey="name"
+                        dataKey="value"
                         position="right"
                         offset={8}
                         className="fill-foreground"
                         fontSize={12}
-                        formatter={(value: string, props: any) => formatCurrency(props.payload.value)}
+                        formatter={(value: number) => formatCurrency(value)}
                     />
                 </Bar>
             </BarChart>

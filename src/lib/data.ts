@@ -1,4 +1,4 @@
-import type { Category, Expense, Goal, Asset, Liability } from '@/lib/types';
+import type { Category, Expense, Goal, Asset, Liability, NetWorthHistory } from '@/lib/types';
 
 export const categories: Category[] = [
   { id: 'cat-1', name: 'Groceries', icon: 'ShoppingCart' },
@@ -109,4 +109,13 @@ export const liabilities: Liability[] = [
   { id: 'lia-1', name: 'Mortgage', balance: 250000, type: 'Mortgage' },
   { id: 'lia-2', name: 'Car Loan', balance: 12000, type: 'Loan' },
   { id: 'lia-3', name: 'Credit Card Debt', balance: 3500, type: 'Credit Card' },
+];
+
+export const netWorthHistory: NetWorthHistory[] = [
+  { date: '2024-02-01', netWorth: 105000 },
+  { date: '2024-03-01', netWorth: 107500 },
+  { date: '2024-04-01', netWorth: 111000 },
+  { date: '2024-05-01', netWorth: 110500 },
+  { date: '2024-06-01', netWorth: 115000 },
+  { date: '2024-07-01', netWorth: 119500 },
 ];
