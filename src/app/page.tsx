@@ -23,7 +23,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="container mx-auto grid grid-cols-1 items-center gap-6 px-4 py-8 md:grid-cols-2 md:px-6 lg:py-16">
           <div className="space-y-6">
-            <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
               Gain Control of Your Finances with Insightful Expenses
             </h1>
             <p className="max-w-[600px] text-muted-foreground md:text-xl">
@@ -50,7 +50,7 @@ export default function Home() {
         <section className="bg-muted py-8 lg:py-16">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
-              <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
                 Features Designed for You
               </h2>
               <p className="mt-4 text-muted-foreground">

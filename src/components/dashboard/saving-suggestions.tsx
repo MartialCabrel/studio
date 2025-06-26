@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   costSavingSuggestions,
   type CostSavingSuggestionsOutput,
+  type CostSavingSuggestionsInput,
 } from '@/ai/flows/cost-saving-suggestions';
 import type { Expense } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -25,12 +26,24 @@ export function SavingSuggestions({ expenses }: SavingSuggestionsProps) {
     useState<CostSavingSuggestionsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preferences, setPreferences] = useState<CostSavingSuggestionsInput['userPreferences'] | undefined>(undefined);
+    
+  useEffect(() => {
+    const savedPrefs = localStorage.getItem('aiPreferences');
+    if (savedPrefs) {
+        try {
+            setPreferences(JSON.parse(savedPrefs));
+        } catch (e) {
+            console.error("Failed to parse AI preferences from localStorage", e);
+        }
+    }
+  }, []);
 
   const handleGenerateSuggestions = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await costSavingSuggestions({ expenses });
+      const result = await costSavingSuggestions({ expenses, userPreferences: preferences });
       setSuggestions(result);
     } catch (e) {
       setError('Failed to generate suggestions. Please try again.');

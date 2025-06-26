@@ -12,7 +12,7 @@ export function Logo({ className }: { className?: string }) {
       )}
     >
       <Wallet className="h-6 w-6 text-primary" />
-      <span className="font-headline">Insightful Expenses</span>
+      <span>Insightful Expenses</span>
     </Link>
   );
 }

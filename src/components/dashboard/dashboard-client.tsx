@@ -45,7 +45,7 @@ export function DashboardClient({
     <>
       <div className="flex flex-col-reverse items-start gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-headline text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight">
             Dashboard
           </h1>
           <p className="text-muted-foreground">
