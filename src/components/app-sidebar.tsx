@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Settings } from 'lucide-react';
+import { Home, Settings, Target } from 'lucide-react';
 import {
   Sidebar,
   SidebarHeader,
@@ -21,6 +21,7 @@ export function AppSidebar() {
 
   const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
+    { href: '/goals', label: 'Goals', icon: Target },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 

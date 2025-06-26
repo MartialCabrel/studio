@@ -1,4 +1,4 @@
-import type { Category, Expense } from '@/lib/types';
+import type { Category, Expense, Goal } from '@/lib/types';
 
 export const categories: Category[] = [
   { id: 'cat-1', name: 'Groceries', icon: 'ShoppingCart' },
@@ -91,4 +91,10 @@ export const expenses: Expense[] = [
     date: new Date(2024, 6, 7).toISOString(),
     description: 'Pharmacy co-pay',
   },
+];
+
+export const goals: Goal[] = [
+  { id: 'goal-1', name: 'Vacation to Hawaii', targetAmount: 5000, currentAmount: 1250 },
+  { id: 'goal-2', name: 'New Laptop', targetAmount: 2000, currentAmount: 1800 },
+  { id: 'goal-3', name: 'Emergency Fund', targetAmount: 10000, currentAmount: 4000 },
 ];

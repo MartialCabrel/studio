@@ -7,7 +7,15 @@ export type Expense = {
 };
 
 export type Category = {
-  id: string;
+  id:string;
   name: string;
   icon: string; // Lucide icon name
+};
+
+export type Goal = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string;
 };
