@@ -38,12 +38,11 @@ export default function Home() {
           </div>
           <div className="flex justify-center">
             <Image
-              src="https://placehold.co/600x400.png"
+              src="/banner.jpeg"
               alt="Dashboard preview"
               width={600}
               height={400}
               className="rounded-xl shadow-2xl"
-              data-ai-hint="finance dashboard"
             />
           </div>
         </section>

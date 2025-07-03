@@ -12,10 +12,10 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // This will be caught by the error boundary
-    throw new Error(
-      'Missing Supabase URL or anon key in middleware. Check your .env file.'
-    );
+    // If Supabase is not configured, we can't do anything with auth.
+    // We'll just pass the request through. This allows public pages to render.
+    // The app will fail later on protected routes if it tries to use Supabase.
+    return response;
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
