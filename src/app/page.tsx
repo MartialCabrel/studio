@@ -38,7 +38,7 @@ export default function Home() {
           </div>
           <div className="flex justify-center">
             <Image
-              src="/banner.jpeg"
+              src="/banner.jpg"
               alt="Dashboard preview"
               width={600}
               height={400}
