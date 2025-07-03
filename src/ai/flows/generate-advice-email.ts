@@ -38,21 +38,41 @@ const generateAdviceEmailPrompt = ai.definePrompt({
   name: 'generateAdviceEmailPrompt',
   input: {schema: GenerateAdviceEmailInputSchema},
   output: {schema: GenerateAdviceEmailOutputSchema},
-  prompt: `You are a friendly and encouraging financial assistant for an app called "Insightful Expenses".
+  prompt: `You are an AI assistant for "Insightful Expenses". Your task is to generate a personalized financial advice email.
 
-Your task is to write a personalized email to a user with some financial advice you have generated.
+**User's Name:**
+{{{userName}}}
 
-The user's name is {{{userName}}}.
-
-Here are the suggestions:
+**Financial Suggestions:**
+{{#if (gt suggestions.suggestions.length 0)}}
+<p>Here are your personalized financial insights:</p>
+<ul>
 {{#each suggestions.suggestions}}
-- **{{this.expenseDescription}}**: {{this.suggestion}} (Reason: {{this.reason}})
+<li><strong>{{this.expenseDescription}}</strong>: {{this.suggestion}} (Reason: {{this.reason}})</li>
 {{/each}}
-{{#if (eq suggestions.suggestions.length 0)}}
-You're doing great! We didn't find any specific saving opportunities this time. Keep up the great work with your budgeting.
+</ul>
+{{else}}
+<p>You're doing great! We didn't find any specific saving opportunities this time. Keep up the great work with your budgeting.</p>
 {{/if}}
 
-Please write a concise, friendly, and encouraging email. The subject line should be catchy and positive. The body should be in HTML format. Start by greeting the user by name. Present the suggestions in a clear, easy-to-read format (like a list). End with a positive and motivating closing.
+**Instructions:**
+1.  Generate a friendly and positive subject line for the email.
+2.  Generate the full HTML body for the email by populating the template below.
+    - Replace the placeholder comment with the user's name and the financial suggestions provided above.
+
+**Email HTML Template:**
+<div style="font-family: system-ui, sans-serif, Arial; font-size: 16px">
+  <a style="text-decoration: none; outline: none; color: #468989; font-weight: bold;" href="/" target="_blank">
+    Insightful Expenses
+  </a>
+  <p style="padding-top: 16px; border-top: 1px solid #eaeaea">Hi {{{userName}}},</p>
+  
+  {{! This is where the AI should insert the "Financial Suggestions" content. }}
+
+  <p style="padding-top: 16px; border-top: 1px solid #eaeaea">
+    Best regards,<br />The Insightful Expenses Team
+  </p>
+</div>
 `,
 });
 
