@@ -13,7 +13,9 @@ export async function updateSession(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     // This will be caught by the error boundary
-    throw new Error('Missing environment variables for Supabase client in middleware');
+    throw new Error(
+      'Missing Supabase URL or anon key in middleware. Check your .env file.'
+    );
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
