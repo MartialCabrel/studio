@@ -1,38 +1,30 @@
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL") // uses connection pooling
-  directUrl = env("DIRECT_URL")   // for migrations
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
 model User {
-  id              String            @id @unique
-  email           String            @unique
-  currency        String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  categories      Category[]
+  id              String    @id @default(uuid())
+  email           String    @unique
+  currency        String
+  emailConsent    Boolean   @default(false)
   expenses        Expense[]
+  categories      Category[]
   goals           Goal[]
   assets          Asset[]
   liabilities     Liability[]
   netWorthHistory NetWorthHistory[]
-}
-
-model Category {
-  id        String    @id @default(cuid())
-  name      String
-  icon      String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expenses  Expense[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([userId, name])
 }
 
 model Expense {
@@ -40,12 +32,25 @@ model Expense {
   amount      Float
   description String
   date        DateTime
+  user        User     @relation(fields: [userId], references: [id])
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id])
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id], onUpdate: Cascade, onDelete: Restrict)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  icon      String
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([name, userId])
 }
 
 model Goal {
@@ -53,8 +58,8 @@ model Goal {
   name          String
   targetAmount  Float
   currentAmount Float    @default(0)
+  user          User     @relation(fields: [userId], references: [id])
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -63,9 +68,9 @@ model Asset {
   id        String   @id @default(cuid())
   name      String
   value     Float
-  type      String // e.g., 'Investment', 'Property', 'Vehicle', 'Other'
+  type      String // e.g., Investment, Property, Vehicle
+  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -74,9 +79,9 @@ model Liability {
   id        String   @id @default(cuid())
   name      String
   balance   Float
-  type      String // e.g., 'Loan', 'Mortgage', 'Credit Card', 'Other'
+  type      String // e.g., Loan, Mortgage, Credit Card
+  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -85,7 +90,7 @@ model NetWorthHistory {
   id        String   @id @default(cuid())
   date      DateTime
   netWorth  Float
+  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }

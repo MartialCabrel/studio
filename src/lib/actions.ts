@@ -33,6 +33,7 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const currency = formData.get('currency') as string;
+  const emailConsent = formData.get('emailConsent') === 'on';
 
   const {
     data: { user },
@@ -43,6 +44,7 @@ export async function signup(formData: FormData) {
     options: {
       data: {
         currency: currency || 'USD',
+        email_consent: emailConsent,
       },
     },
   });
@@ -58,6 +60,7 @@ export async function signup(formData: FormData) {
         id: user.id,
         email: user.email!,
         currency: currency || 'USD',
+        emailConsent: emailConsent,
         categories: {
           create: defaultCategories.map((cat) => ({
             name: cat.name,

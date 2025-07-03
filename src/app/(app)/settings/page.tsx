@@ -12,6 +12,15 @@ async function getCategories(userId: string) {
   });
 }
 
+async function getExpenses(userId: string) {
+  const expenses = await prisma.expense.findMany({
+    where: { userId },
+    include: { category: true },
+    orderBy: { date: 'desc' },
+  });
+  return expenses.map((e) => ({ ...e, category: e.category.name }));
+}
+
 export default async function SettingsPage() {
   const supabase = createClient();
   const {
@@ -23,6 +32,8 @@ export default async function SettingsPage() {
   }
 
   const categories = await getCategories(user.id);
+  const expenses = await getExpenses(user.id);
+  const currency = user.user_metadata.currency || 'USD';
 
   return (
     <div className="space-y-4">
@@ -37,7 +48,11 @@ export default async function SettingsPage() {
 
       <Separator />
 
-      <AIPreferences />
+      <AIPreferences
+        user={user}
+        expenses={expenses}
+        currency={currency}
+      />
     </div>
   );
 }

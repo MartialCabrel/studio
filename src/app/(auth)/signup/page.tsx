@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { countries } from '@/lib/countries';
 import { signup } from '@/lib/actions';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function SignupPage() {
   return (
@@ -63,6 +64,15 @@ export default function SignupPage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="email-consent" name="emailConsent" required />
+            <Label
+              htmlFor="email-consent"
+              className="text-sm font-normal text-muted-foreground"
+            >
+              I agree to receive emails with news and advice.
+            </Label>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
