@@ -4,6 +4,7 @@ import { Bot, LineChart, ListPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { CookieConsent } from '@/components/cookie-consent';
 
 export default function Home() {
   return (
@@ -109,6 +110,7 @@ export default function Home() {
           <Logo />
         </div>
       </footer>
+      <CookieConsent />
     </div>
   );
 }
