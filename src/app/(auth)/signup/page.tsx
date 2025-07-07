@@ -52,13 +52,13 @@ export default function SignupPage() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="country">Country</Label>
-            <Select name="currency" defaultValue="USD">
+            <Select name="country" defaultValue="US">
               <SelectTrigger id="country">
                 <SelectValue placeholder="Select your country" />
               </SelectTrigger>
               <SelectContent>
                 {countries.map((country) => (
-                  <SelectItem key={country.code} value={country.currency}>
+                  <SelectItem key={country.code} value={country.code}>
                     {country.name} ({country.currency})
                   </SelectItem>
                 ))}

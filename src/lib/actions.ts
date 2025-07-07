@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import prisma from '@/lib/prisma';
 import type { Asset, Liability, Goal, Expense } from './types';
 import { defaultCategories } from './data';
+import { countries } from './countries';
 
 // --- AUTH ACTIONS ---
 
@@ -32,8 +33,11 @@ export async function signup(formData: FormData) {
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const currency = formData.get('currency') as string;
+  const countryCode = formData.get('country') as string;
   const emailConsent = formData.get('emailConsent') === 'on';
+
+  const selectedCountry = countries.find((c) => c.code === countryCode);
+  const currency = selectedCountry ? selectedCountry.currency : 'USD';
 
   const {
     data: { user },
@@ -43,7 +47,7 @@ export async function signup(formData: FormData) {
     password,
     options: {
       data: {
-        currency: currency || 'USD',
+        currency: currency,
         email_consent: emailConsent,
       },
     },
@@ -59,7 +63,7 @@ export async function signup(formData: FormData) {
       data: {
         id: user.id,
         email: user.email!,
-        currency: currency || 'USD',
+        currency: currency,
         emailConsent: emailConsent,
         categories: {
           create: defaultCategories.map((cat) => ({
