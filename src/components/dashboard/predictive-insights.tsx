@@ -36,7 +36,16 @@ export function PredictiveInsights({
     setIsLoading(true);
     setError(null);
     try {
-      const result = await predictiveInsights({ expenses, currency });
+      const preparedExpenses = expenses.map((e) => ({
+        amount: e.amount,
+        category: e.category,
+        date: new Date(e.date).toISOString(),
+        description: e.description,
+      }));
+      const result = await predictiveInsights({
+        expenses: preparedExpenses,
+        currency,
+      });
       setPrediction(result);
     } catch (e) {
       setError('Failed to generate predictions. Please try again.');

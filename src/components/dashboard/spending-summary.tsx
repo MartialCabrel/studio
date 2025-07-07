@@ -47,8 +47,14 @@ export function SpendingSummary({ expenses, currency }: SpendingSummaryProps) {
     setIsLoading(true);
     setError(null);
     try {
+      const preparedExpenses = expenses.map((e) => ({
+        amount: e.amount,
+        category: e.category,
+        date: new Date(e.date).toISOString(),
+        description: e.description,
+      }));
       const result = await summarizeSpending({
-        expenses,
+        expenses: preparedExpenses,
         period: 'monthly',
         currency,
       });

@@ -106,9 +106,15 @@ export function AIPreferences({ user, expenses, currency }: AIPreferencesProps) 
     try {
       const savedPrefs = localStorage.getItem('aiPreferences');
       const preferences = savedPrefs ? JSON.parse(savedPrefs) : undefined;
+      const preparedExpenses = expenses.map((e) => ({
+        amount: e.amount,
+        category: e.category,
+        date: new Date(e.date).toISOString(),
+        description: e.description,
+      }));
 
       const suggestions = await costSavingSuggestions({
-        expenses,
+        expenses: preparedExpenses,
         userPreferences: preferences,
         currency,
       });

@@ -49,8 +49,14 @@ export function SavingSuggestions({
     setIsLoading(true);
     setError(null);
     try {
+      const preparedExpenses = expenses.map((e) => ({
+        amount: e.amount,
+        category: e.category,
+        date: new Date(e.date).toISOString(),
+        description: e.description,
+      }));
       const result = await costSavingSuggestions({
-        expenses,
+        expenses: preparedExpenses,
         userPreferences: preferences,
         currency,
       });

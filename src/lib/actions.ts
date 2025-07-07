@@ -22,7 +22,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    return redirect('/login?message=Could not authenticate user');
+    return redirect('/login');
   }
 
   return redirect('/dashboard');
@@ -55,7 +55,7 @@ export async function signup(formData: FormData) {
 
   if (signUpError) {
     console.error(signUpError);
-    return redirect('/signup?message=Could not authenticate user');
+    return redirect('/signup');
   }
 
   if (user) {
