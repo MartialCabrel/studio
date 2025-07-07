@@ -44,7 +44,7 @@ const generateAdviceEmailPrompt = ai.definePrompt({
 {{{userName}}}
 
 **Financial Suggestions:**
-{{#if (gt suggestions.suggestions.length 0)}}
+{{#if suggestions.suggestions}}
 <p>Here are your personalized financial insights:</p>
 <ul>
 {{#each suggestions.suggestions}}
