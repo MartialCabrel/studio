@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -14,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
 import { login } from '@/lib/actions';
+import { SubmitButton } from '@/components/submit-button';
 
 export default function LoginPage() {
   return (
@@ -45,9 +45,9 @@ export default function LoginPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" type="submit">
+          <SubmitButton className="w-full" loadingText="Logging in...">
             Login
-          </Button>
+          </SubmitButton>
           <div className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="underline hover:text-primary">

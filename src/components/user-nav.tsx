@@ -1,3 +1,5 @@
+'use client';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +14,27 @@ import {
 import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
 import { logout } from '@/lib/actions';
+import { useFormStatus } from 'react-dom';
+import { Loader2 } from 'lucide-react';
+
+function LogoutButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <DropdownMenuItem asChild disabled={pending}>
+      <button type="submit" className="w-full text-left">
+        {pending ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Logging out...
+          </span>
+        ) : (
+          'Log out'
+        )}
+      </button>
+    </DropdownMenuItem>
+  );
+}
 
 export function UserNav({ user }: { user: User }) {
   const getInitials = (email: string) => {
@@ -46,11 +69,7 @@ export function UserNav({ user }: { user: User }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <form action={logout}>
-          <DropdownMenuItem asChild>
-            <button type="submit" className="w-full text-left">
-              Log out
-            </button>
-          </DropdownMenuItem>
+          <LogoutButton />
         </form>
       </DropdownMenuContent>
     </DropdownMenu>

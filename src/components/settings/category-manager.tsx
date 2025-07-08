@@ -10,7 +10,15 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import { Edit, PlusCircle, Save, Trash2, X, AlertTriangle } from 'lucide-react';
+import {
+  Edit,
+  PlusCircle,
+  Save,
+  Trash2,
+  X,
+  AlertTriangle,
+  Loader2,
+} from 'lucide-react';
 import { Icon } from '../icon';
 import {
   Dialog,
@@ -52,6 +60,10 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
     string | null
   >(null);
   const [editingName, setEditingName] = React.useState('');
+  const [processingState, setProcessingState] = React.useState<{
+    id: string;
+    action: 'save' | 'delete';
+  } | null>(null);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -69,16 +81,20 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
   };
 
   const handleSave = async (id: string) => {
+    setProcessingState({ id, action: 'save' });
     try {
       await updateCategory(id, editingName);
       toast({ title: 'Category updated!' });
       handleCancel();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error saving category' });
+    } finally {
+      setProcessingState(null);
     }
   };
 
   const handleDelete = async (id: string) => {
+    setProcessingState({ id, action: 'delete' });
     try {
       await deleteCategory(id);
       toast({ title: 'Category deleted!' });
@@ -88,6 +104,8 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
         title: 'Error deleting category',
         description: 'Make sure no expenses are using this category.',
       });
+    } finally {
+      setProcessingState(null);
     }
   };
 
@@ -128,10 +146,21 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                       size="icon"
                       variant="ghost"
                       onClick={() => handleSave(category.id)}
+                      disabled={processingState?.id === category.id}
                     >
-                      <Save className="h-4 w-4" />
+                      {processingState?.id === category.id &&
+                      processingState.action === 'save' ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={handleCancel}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleCancel}
+                      disabled={processingState?.id === category.id}
+                    >
                       <X className="h-4 w-4" />
                     </Button>
                   </>
@@ -141,6 +170,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                       size="icon"
                       variant="ghost"
                       onClick={() => handleEdit(category)}
+                      disabled={processingState?.id === category.id}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -151,6 +181,7 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                           size="icon"
                           variant="ghost"
                           className="text-destructive hover:text-destructive"
+                          disabled={processingState?.id === category.id}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -167,7 +198,15 @@ export function CategoryManager({ initialCategories }: CategoryManagerProps) {
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(category.id)}
+                            disabled={
+                              processingState?.id === category.id &&
+                              processingState.action === 'delete'
+                            }
                           >
+                            {processingState?.id === category.id &&
+                              processingState.action === 'delete' && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -188,10 +227,12 @@ function AddCategoryDialog() {
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState('');
   const [icon, setIcon] = React.useState('Package');
+  const [isSaving, setIsSaving] = React.useState(false);
   const { toast } = useToast();
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     try {
       await addCategory(name, icon);
       toast({ title: 'Category added!' });
@@ -200,8 +241,11 @@ function AddCategoryDialog() {
       setOpen(false);
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error adding category' });
+    } finally {
+      setIsSaving(false);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -251,7 +295,10 @@ function AddCategoryDialog() {
             <DialogClose asChild>
               <Button variant="ghost">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

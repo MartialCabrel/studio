@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -21,6 +20,7 @@ import {
 import { countries } from '@/lib/countries';
 import { signup } from '@/lib/actions';
 import { Checkbox } from '@/components/ui/checkbox';
+import { SubmitButton } from '@/components/submit-button';
 
 export default function SignupPage() {
   return (
@@ -76,9 +76,9 @@ export default function SignupPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" type="submit">
+          <SubmitButton className="w-full" loadingText="Creating account...">
             Create account
-          </Button>
+          </SubmitButton>
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="underline hover:text-primary">

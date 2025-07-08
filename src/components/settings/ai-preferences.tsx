@@ -49,7 +49,7 @@ export function AIPreferences({ user, expenses, currency }: AIPreferencesProps) 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<AIPreferencesFormValues>({
     resolver: zodResolver(aiPreferencesSchema),
@@ -216,7 +216,16 @@ export function AIPreferences({ user, expenses, currency }: AIPreferencesProps) 
               </p>
             )}
           </div>
-          <Button type="submit">Save Preferences</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Preferences'
+            )}
+          </Button>
         </form>
 
         <Separator className="my-6" />
