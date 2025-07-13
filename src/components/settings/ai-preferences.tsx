@@ -24,7 +24,7 @@ import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Loader2, Mail } from 'lucide-react';
-import type { Expense } from '@/lib/types';
+import type { Expense, Budget } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
 import { costSavingSuggestions } from '@/ai/flows/cost-saving-suggestions';
 import { generateAdviceEmail } from '@/ai/flows/generate-advice-email';
@@ -39,10 +39,11 @@ type AIPreferencesFormValues = z.infer<typeof aiPreferencesSchema>;
 interface AIPreferencesProps {
   user: User;
   expenses: Expense[];
+  budget: Budget | null;
   currency: string;
 }
 
-export function AIPreferences({ user, expenses, currency }: AIPreferencesProps) {
+export function AIPreferences({ user, expenses, budget, currency }: AIPreferencesProps) {
   const { toast } = useToast();
   const [isSendingEmail, setIsSendingEmail] = React.useState(false);
 
@@ -116,6 +117,7 @@ export function AIPreferences({ user, expenses, currency }: AIPreferencesProps) 
       const suggestions = await costSavingSuggestions({
         expenses: preparedExpenses,
         userPreferences: preferences,
+        budget: budget ? { amount: budget.amount, period: budget.period } : undefined,
         currency,
       });
       const emailContent = await generateAdviceEmail({

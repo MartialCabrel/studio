@@ -21,6 +21,14 @@ async function getExpenses(userId: string) {
   return expenses.map((e) => ({ ...e, category: e.category.name }));
 }
 
+async function getBudgetData(userId: string) {
+   const budget = await prisma.budget.findFirst({
+    where: { userId, archived: false },
+    orderBy: { createdAt: 'desc' },
+  });
+  return budget;
+}
+
 export default async function SettingsPage() {
   const supabase = createClient();
   const {
@@ -33,6 +41,7 @@ export default async function SettingsPage() {
 
   const categories = await getCategories(user.id);
   const expenses = await getExpenses(user.id);
+  const budget = await getBudgetData(user.id);
   const currency = user.user_metadata.currency || 'USD';
 
   return (
@@ -51,6 +60,7 @@ export default async function SettingsPage() {
       <AIPreferences
         user={user}
         expenses={expenses}
+        budget={budget}
         currency={currency}
       />
     </div>

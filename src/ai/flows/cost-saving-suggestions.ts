@@ -27,6 +27,10 @@ const CostSavingSuggestionsInputSchema = z.object({
     reportFrequency: z.enum(['daily', 'weekly', 'monthly']).optional().describe('The user-selected report frequency.'),
     adviceType: z.string().optional().describe('The type of cost saving advice the user wants to receive.'),
   }).optional().describe('User preferences for cost saving suggestions.'),
+  budget: z.object({
+    amount: z.number().describe('The total budget amount.'),
+    period: z.enum(['daily', 'weekly', 'monthly']).describe('The budget period.'),
+  }).optional().describe('The user\'s current budget, if set.'),
   currency: z.string().describe('The currency of the expenses, e.g., USD, EUR.'),
 });
 
@@ -54,6 +58,12 @@ const costSavingSuggestionsPrompt = ai.definePrompt({
   output: {schema: CostSavingSuggestionsOutputSchema},
   prompt: `You are a personal finance advisor. Analyze the user's expenses and identify potential cost-saving opportunities. The currency for all amounts is {{{currency}}}. Mention the currency when talking about specific amounts in your suggestions.
 
+{{#if budget}}
+User's Budget:
+- Amount: {{{budget.amount}}} {{{currency}}}
+- Period: {{{budget.period}}}
+{{/if}}
+
 Expenses:
 {{#each expenses}}
 - Amount: {{amount}}, Category: {{category}}, Date: {{date}}, Description: {{description}}
@@ -65,7 +75,7 @@ User Preferences:
   Advice Type: {{userPreferences.adviceType}}
 {{/if}}
 
-Based on the expenses and user preferences, provide a list of cost-saving suggestions. Highlight any unusual or high expenses and suggest ways to reduce spending in those areas.
+Based on the expenses, user preferences, and their budget (if provided), provide a list of cost-saving suggestions. Highlight any unusual or high expenses, especially if they are causing the user to go over budget. Suggest ways to reduce spending in those areas.
 
 Format your suggestions as an array of JSON objects, with each object containing the following keys:
 - expenseDescription: Description of the expense for which the suggestion is made.
