@@ -4,9 +4,10 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import prisma from '@/lib/prisma';
-import type { Asset, Liability, Goal, Expense } from './types';
+import type { Asset, Liability, Goal, Expense, Budget } from './types';
 import { defaultCategories } from './data';
 import { countries } from './countries';
+import { subDays, isAfter } from 'date-fns';
 
 // --- AUTH ACTIONS ---
 
@@ -22,7 +23,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    return redirect('/login');
+    return redirect('/login?message=Could not authenticate user');
   }
 
   return redirect('/dashboard');
@@ -71,6 +72,11 @@ export async function signup(formData: FormData) {
             icon: cat.icon,
           })),
         },
+        savingsAccount: {
+          create: {
+            balance: 0,
+          },
+        },
       },
     });
   }
@@ -118,6 +124,7 @@ export async function addExpense(expense: Omit<Expense, 'id' | 'date'> & { date:
     },
   });
   revalidatePath('/dashboard');
+  revalidatePath('/budget');
 }
 
 // Goals
@@ -171,4 +178,46 @@ export async function deleteCategory(id: string) {
     where: { id, userId: user.id },
   });
   revalidatePath('/settings');
+}
+
+// Budget
+export async function setBudget(budget: Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) {
+  const user = await getUser();
+  const { amount, period } = budget;
+
+  const existingBudget = await prisma.budget.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (existingBudget) {
+    const twentyFourHoursAgo = subDays(new Date(), 1);
+    const canUpdate = isAfter(existingBudget.createdAt, twentyFourHoursAgo);
+
+    if (canUpdate) {
+      await prisma.budget.update({
+        where: { id: existingBudget.id },
+        data: { amount, period },
+      });
+      revalidatePath('/budget');
+      return { success: true, message: 'Budget updated successfully.' };
+    } else {
+      // Logic to check if new budget can be created based on period end
+      // For now, we'll throw an error to prevent creating a new one while another is "active"
+      // This will be expanded later.
+      throw new Error('Cannot update budget after 24 hours. Please wait for the current period to end.');
+    }
+  }
+
+  // Create new budget if none exists
+  await prisma.budget.create({
+    data: {
+      amount,
+      period,
+      userId: user.id,
+    },
+  });
+
+  revalidatePath('/budget');
+  return { success: true, message: 'Budget set successfully.' };
 }

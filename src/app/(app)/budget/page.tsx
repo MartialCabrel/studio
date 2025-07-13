@@ -15,10 +15,11 @@ async function getData(userId: string) {
   
   const expenses = await prisma.expense.findMany({
     where: { userId },
+    include: { category: true },
     orderBy: { date: 'desc' },
   });
 
-  return { budget, savingsAccount, expenses };
+  return { budget, savingsAccount, expenses: expenses.map(e => ({...e, category: e.category.name})) };
 }
 
 export default async function BudgetPage() {

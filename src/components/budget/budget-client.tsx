@@ -1,6 +1,14 @@
 'use client';
 
 import type { Budget, SavingsAccount, Expense } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import { SetBudgetDialog } from './set-budget-dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useCurrency } from '@/hooks/use-currency';
+import { Progress } from '../ui/progress';
+import { useMemo } from 'react';
+import { sub, isWithinInterval } from 'date-fns';
 
 interface BudgetClientProps {
   initialBudget: Budget | null;
@@ -15,6 +23,72 @@ export function BudgetClient({
   expenses,
   currency,
 }: BudgetClientProps) {
+  const { formatCurrency } = useCurrency(currency);
+
+  const { spentAmount, budgetProgress, isEditable, periodDisplay } =
+    useMemo(() => {
+      if (!initialBudget) {
+        return {
+          spentAmount: 0,
+          budgetProgress: 0,
+          isEditable: true,
+          periodDisplay: 'No budget set',
+        };
+      }
+
+      const now = new Date();
+      const budgetStartDate = new Date(initialBudget.createdAt);
+      let intervalEnd: Date;
+      let periodDisplay: string;
+
+      switch (initialBudget.period) {
+        case 'daily':
+          intervalEnd = new Date(
+            budgetStartDate.getFullYear(),
+            budgetStartDate.getMonth(),
+            budgetStartDate.getDate() + 1
+          );
+          periodDisplay = 'Daily';
+          break;
+        case 'weekly':
+          intervalEnd = new Date(
+            budgetStartDate.getFullYear(),
+            budgetStartDate.getMonth(),
+            budgetStartDate.getDate() + 7
+          );
+           periodDisplay = 'Weekly';
+          break;
+        case 'monthly':
+          intervalEnd = new Date(
+            budgetStartDate.getFullYear(),
+            budgetStartDate.getMonth() + 1,
+            budgetStartDate.getDate()
+          );
+           periodDisplay = 'Monthly';
+          break;
+      }
+      
+      const twentyFourHoursAgo = sub(now, { hours: 24 });
+      const isEditable = budgetStartDate > twentyFourHoursAgo;
+
+      const spentAmount = expenses
+        .filter((e) =>
+          isWithinInterval(new Date(e.date), {
+            start: budgetStartDate,
+            end: intervalEnd,
+          })
+        )
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      const budgetProgress = (spentAmount / initialBudget.amount) * 100;
+
+      return { spentAmount, budgetProgress, isEditable, periodDisplay };
+    }, [initialBudget, expenses]);
+
+  const remainingBudget = initialBudget
+    ? initialBudget.amount - spentAmount
+    : 0;
+
   return (
     <>
       <div className="flex flex-col-reverse items-start gap-2 md:flex-row md:items-center md:justify-between">
@@ -24,9 +98,62 @@ export function BudgetClient({
             Manage your budget and savings.
           </p>
         </div>
+        <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-start">
+          <SetBudgetDialog initialBudget={initialBudget} isEditable={isEditable}>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              {initialBudget ? 'Update Budget' : 'Set Budget'}
+            </Button>
+          </SetBudgetDialog>
+        </div>
       </div>
-      <div>
-        <p>Budgeting features will be implemented here.</p>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>{periodDisplay} Budget</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {initialBudget ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Spent</span>
+                    <span>{formatCurrency(spentAmount)}</span>
+                  </div>
+                  <Progress value={budgetProgress} />
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Remaining: {formatCurrency(remainingBudget)}</span>
+                    <span>Total: {formatCurrency(initialBudget.amount)}</span>
+                  </div>
+                </div>
+                {isEditable && (
+                  <p className="text-xs text-muted-foreground">
+                    You can edit your budget for the next 24 hours.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="py-10 text-center">
+                <p className="text-muted-foreground">
+                  You haven&apos;t set a budget yet.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Savings Account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {formatCurrency(initialSavingsAccount?.balance ?? 0)}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your accumulated savings.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </>
   );
