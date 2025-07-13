@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useCurrency } from '@/hooks/use-currency';
 import { Progress } from '../ui/progress';
 import { useMemo } from 'react';
-import { sub, isWithinInterval } from 'date-fns';
+import { add, isWithinInterval, isAfter, subDays } from 'date-fns';
 
 interface BudgetClientProps {
   initialBudget: Budget | null;
@@ -36,40 +36,28 @@ export function BudgetClient({
         };
       }
 
-      const now = new Date();
       const budgetStartDate = new Date(initialBudget.createdAt);
       let intervalEnd: Date;
       let periodDisplay: string;
 
       switch (initialBudget.period) {
         case 'daily':
-          intervalEnd = new Date(
-            budgetStartDate.getFullYear(),
-            budgetStartDate.getMonth(),
-            budgetStartDate.getDate() + 1
-          );
+          intervalEnd = add(budgetStartDate, { days: 1 });
           periodDisplay = 'Daily';
           break;
         case 'weekly':
-          intervalEnd = new Date(
-            budgetStartDate.getFullYear(),
-            budgetStartDate.getMonth(),
-            budgetStartDate.getDate() + 7
-          );
-           periodDisplay = 'Weekly';
+          intervalEnd = add(budgetStartDate, { weeks: 1 });
+          periodDisplay = 'Weekly';
           break;
         case 'monthly':
-          intervalEnd = new Date(
-            budgetStartDate.getFullYear(),
-            budgetStartDate.getMonth() + 1,
-            budgetStartDate.getDate()
-          );
-           periodDisplay = 'Monthly';
+        default:
+          intervalEnd = add(budgetStartDate, { months: 1 });
+          periodDisplay = 'Monthly';
           break;
       }
-      
-      const twentyFourHoursAgo = sub(now, { hours: 24 });
-      const isEditable = budgetStartDate > twentyFourHoursAgo;
+
+      const twentyFourHoursAgo = subDays(new Date(), 1);
+      const isEditable = isAfter(budgetStartDate, twentyFourHoursAgo);
 
       const spentAmount = expenses
         .filter((e) =>
@@ -80,7 +68,10 @@ export function BudgetClient({
         )
         .reduce((sum, e) => sum + e.amount, 0);
 
-      const budgetProgress = (spentAmount / initialBudget.amount) * 100;
+      const budgetProgress =
+        initialBudget.amount > 0
+          ? (spentAmount / initialBudget.amount) * 100
+          : 0;
 
       return { spentAmount, budgetProgress, isEditable, periodDisplay };
     }, [initialBudget, expenses]);
@@ -99,8 +90,11 @@ export function BudgetClient({
           </p>
         </div>
         <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-start">
-          <SetBudgetDialog initialBudget={initialBudget} isEditable={isEditable}>
-            <Button>
+          <SetBudgetDialog
+            initialBudget={initialBudget}
+            isEditable={isEditable}
+          >
+            <Button disabled={!!initialBudget && !isEditable}>
               <PlusCircle className="mr-2 h-4 w-4" />
               {initialBudget ? 'Update Budget' : 'Set Budget'}
             </Button>
@@ -129,6 +123,11 @@ export function BudgetClient({
                 {isEditable && (
                   <p className="text-xs text-muted-foreground">
                     You can edit your budget for the next 24 hours.
+                  </p>
+                )}
+                 {!isEditable && (
+                  <p className="text-xs text-muted-foreground">
+                    A new budget can be set once the current period ends.
                   </p>
                 )}
               </div>

@@ -7,7 +7,7 @@ import prisma from '@/lib/prisma';
 import type { Asset, Liability, Goal, Expense, Budget } from './types';
 import { defaultCategories } from './data';
 import { countries } from './countries';
-import { subDays, isAfter } from 'date-fns';
+import { subDays, isAfter, add, isBefore } from 'date-fns';
 
 // --- AUTH ACTIONS ---
 
@@ -23,7 +23,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    return redirect('/login?message=Could not authenticate user');
+    return redirect('/login');
   }
 
   return redirect('/dashboard');
@@ -102,7 +102,9 @@ async function getUser() {
 }
 
 // Expenses
-export async function addExpense(expense: Omit<Expense, 'id' | 'date'> & { date: Date }) {
+export async function addExpense(
+  expense: Omit<Expense, 'id' | 'date'> & { date: Date }
+) {
   const user = await getUser();
   const { amount, category, date, description } = expense;
 
@@ -181,12 +183,14 @@ export async function deleteCategory(id: string) {
 }
 
 // Budget
-export async function setBudget(budget: Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) {
+export async function setBudget(
+  budget: Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'archived'>
+) {
   const user = await getUser();
   const { amount, period } = budget;
 
   const existingBudget = await prisma.budget.findFirst({
-    where: { userId: user.id },
+    where: { userId: user.id, archived: false },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -202,10 +206,9 @@ export async function setBudget(budget: Omit<Budget, 'id' | 'userId' | 'createdA
       revalidatePath('/budget');
       return { success: true, message: 'Budget updated successfully.' };
     } else {
-      // Logic to check if new budget can be created based on period end
-      // For now, we'll throw an error to prevent creating a new one while another is "active"
-      // This will be expanded later.
-      throw new Error('Cannot update budget after 24 hours. Please wait for the current period to end.');
+      throw new Error(
+        'Cannot update budget after 24 hours. Please wait for the current period to end.'
+      );
     }
   }
 
@@ -220,4 +223,26 @@ export async function setBudget(budget: Omit<Budget, 'id' | 'userId' | 'createdA
 
   revalidatePath('/budget');
   return { success: true, message: 'Budget set successfully.' };
+}
+
+export async function archiveAndSaveRemainingBudget(
+  budget: Budget,
+  spentAmount: number
+) {
+  const user = await getUser();
+  const remainingAmount = Math.max(0, budget.amount - spentAmount);
+
+  await prisma.$transaction([
+    prisma.savingsAccount.update({
+      where: { userId: user.id },
+      data: { balance: { increment: remainingAmount } },
+    }),
+    prisma.budget.update({
+      where: { id: budget.id },
+      data: { archived: true },
+    }),
+  ]);
+
+  revalidatePath('/budget');
+  return { remainingAmount };
 }

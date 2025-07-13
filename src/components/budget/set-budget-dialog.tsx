@@ -61,6 +61,17 @@ export function SetBudgetDialog({
     },
   });
 
+   React.useEffect(() => {
+    if (initialBudget) {
+      reset({
+        amount: initialBudget.amount,
+        period: initialBudget.period as 'daily' | 'weekly' | 'monthly',
+      });
+    } else {
+      reset({ amount: undefined, period: 'weekly' });
+    }
+  }, [initialBudget, reset]);
+
   const onSubmit = async (data: BudgetFormValues) => {
     try {
       const result = await setBudget(data);
@@ -83,18 +94,18 @@ export function SetBudgetDialog({
     }
   };
 
-  const dialogDisabled = !isEditable && !!initialBudget;
+  const dialogDisabled = !!initialBudget && !isEditable;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild disabled={dialogDisabled}>{children}</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Set Your Budget</DialogTitle>
+            <DialogTitle>{initialBudget ? "Update" : "Set"} Your Budget</DialogTitle>
             <DialogDescription>
-              Define your spending limit for the period. You can only change
-              this within 24 hours of setting it.
+              Define your spending limit for the period. 
+              {initialBudget ? " You can only change this within 24 hours of setting it." : "A new budget can be set once the current one expires."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -128,6 +139,7 @@ export function SetBudgetDialog({
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       className="flex space-x-4"
+                      disabled={!!initialBudget}
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="daily" id="daily" />
@@ -144,6 +156,11 @@ export function SetBudgetDialog({
                     </RadioGroup>
                   )}
                 />
+                 {!!initialBudget && (
+                  <p className="text-xs text-muted-foreground pt-2">
+                    Period cannot be changed for an active budget.
+                  </p>
+                )}
                 {errors.period && (
                   <p className="pt-1 text-xs text-destructive">
                     {errors.period.message}
