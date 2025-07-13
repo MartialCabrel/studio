@@ -9,22 +9,45 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String    @id @default(uuid())
-  email           String    @unique
-  currency        String
-  emailConsent    Boolean   @default(false)
-  expenses        Expense[]
-  categories      Category[]
-  goals           Goal[]
-  assets          Asset[]
-  liabilities     Liability[]
+  id String @id @default(cuid())
+
+  email         String   @unique
+  emailConsent  Boolean  @default(false)
+  currency      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  categories    Category[]
+  expenses      Expense[]
+  goals         Goal[]
+  assets        Asset[]
+  liabilities   Liability[]
   netWorthHistory NetWorthHistory[]
+  budgets       Budget[]
+  savingsAccount SavingsAccount?
+
+  @@map("users")
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String
+  icon String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  expenses Expense[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@map("categories")
 }
 
 model Expense {
@@ -32,25 +55,17 @@ model Expense {
   amount      Float
   description String
   date        DateTime
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
-model Category {
-  id        String    @id @default(cuid())
-  name      String
-  icon      String
-  user      User      @relation(fields: [userId], references: [id])
-  userId    String
-  expenses  Expense[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-  @@unique([name, userId])
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("expenses")
 }
 
 model Goal {
@@ -58,39 +73,71 @@ model Goal {
   name          String
   targetAmount  Float
   currentAmount Float    @default(0)
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@map("goals")
 }
 
 model Asset {
   id        String   @id @default(cuid())
   name      String
   value     Float
-  type      String // e.g., Investment, Property, Vehicle
-  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("assets")
 }
 
 model Liability {
   id        String   @id @default(cuid())
   name      String
   balance   Float
-  type      String // e.g., Loan, Mortgage, Credit Card
-  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("liabilities")
 }
 
 model NetWorthHistory {
   id        String   @id @default(cuid())
   date      DateTime
   netWorth  Float
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
+
+  @@map("net_worth_history")
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  amount    Float
+  period    String // "daily", "weekly", "monthly"
+  startDate DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("budgets")
+}
+
+model SavingsAccount {
+  id        String   @id @default(cuid())
+  balance   Float    @default(0)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("savings_accounts")
 }

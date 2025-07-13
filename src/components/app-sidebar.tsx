@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Settings, Target, Landmark } from 'lucide-react';
+import { Home, Settings, Target, Landmark, PiggyBank } from 'lucide-react';
 import {
   Sidebar,
   SidebarHeader,
@@ -19,6 +19,7 @@ export function AppSidebar({ user }: { user: User | null }) {
 
   const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
+    { href: '/budget', label: 'Budget', icon: PiggyBank },
     { href: '/goals', label: 'Goals', icon: Target },
     { href: '/net-worth', label: 'Net Worth', icon: Landmark },
     { href: '/settings', label: 'Settings', icon: Settings },

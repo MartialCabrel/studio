@@ -5,6 +5,8 @@ import type {
   Asset as PrismaAsset,
   Liability as PrismaLiability,
   NetWorthHistory as PrismaNetWorthHistory,
+  Budget as PrismaBudget,
+  SavingsAccount as PrismaSavingsAccount,
 } from '@prisma/client';
 
 export type Expense = Omit<PrismaExpense, 'categoryId'> & {
@@ -20,3 +22,7 @@ export type Asset = PrismaAsset;
 export type Liability = PrismaLiability;
 
 export type NetWorthHistory = PrismaNetWorthHistory;
+
+export type Budget = PrismaBudget;
+
+export type SavingsAccount = PrismaSavingsAccount;
